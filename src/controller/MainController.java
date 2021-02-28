@@ -64,7 +64,8 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         // Set table and column within view
-        partsTableView.setItems(Inventory.addTestData()); // sets list as the items within the tableview
+
+        partsTableView.setItems(Inventory.getAllParts());
 
         partIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         partNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -75,6 +76,11 @@ public class MainController implements Initializable {
 
     }
 
+    /**
+     * This method opens the scene for adding a new part.
+     * @param actionEvent
+     * @throws IOException
+     */
     public void OnPartAddButton(ActionEvent actionEvent) throws IOException {
         System.out.println("Pressed Part Add Button");
 
@@ -108,6 +114,9 @@ public class MainController implements Initializable {
         stage.setScene(scene);
 
         stage.show();
+
+        // add method to have pop-up saying to select the item to modify.
+
     }
 
     public void OnPartDeleteButton(ActionEvent actionEvent) {

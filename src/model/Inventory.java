@@ -2,6 +2,7 @@ package model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TableView;
 
 public class Inventory {
 
@@ -10,13 +11,15 @@ public class Inventory {
 //    private ObservableList<Product> allProducts;
 
 
+    static {
+        addTestData(); // sets list as the items within the tableview
+    }
 
-    public static ObservableList addTestData(){
-        allParts.add(new InHouse(1, "L. acidophilus", 500.00, 20, 5, 100));
-        allParts.add(new InHouse(2, "B. bifidum", 300.00, 30, 10, 200));
-        allParts.add(new Outsourced(3, "Corn Maltodextrin", 50.00, 15, 5, 50));
-        allParts.add(new Outsourced(4, "Inulin", 30.00, 10, 4, 40));
-        return allParts;
+    public static void addTestData(){
+        allParts.add(new InHouse(1, "L. acidophilus", 500.00, 20, 5, 100, "001"));
+        allParts.add(new InHouse(2, "B. bifidum", 300.00, 30, 10, 200, "001"));
+        allParts.add(new Outsourced(3, "Corn Maltodextrin", 50.00, 15, 5, 50, "Chemicals Inc"));
+        allParts.add(new Outsourced(4, "Inulin", 30.00, 10, 4, 40, "Fiber LLC"));
     }
 
     public static void addPart(Part part){
@@ -24,7 +27,7 @@ public class Inventory {
         allParts.add(part);
     }
 
-    public ObservableList<Part> getAllParts(){
+    public static ObservableList<Part> getAllParts(){
 
         return allParts;
     }
