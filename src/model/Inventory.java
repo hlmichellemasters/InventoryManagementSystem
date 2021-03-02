@@ -42,13 +42,13 @@ public class Inventory {
         return null;    // Change to return ObservableList<Part>
     }
 
-    public void updatePart(int index, Part selectedPart){
-
+    public static void updatePart(int index, Part selectedPart){
+        allParts.remove(index);
+        allParts.add(selectedPart);
     }
 
-    public boolean deletePart(Part selectedPart){
-
-
+    public static boolean deletePart(Part selectedPart){
+        allParts.remove(selectedPart);
         return true;
     }
 

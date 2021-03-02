@@ -28,10 +28,10 @@ public class AddModifyPartsController {
 /** Labels and TextField */
 
     @FXML
-    private Label AddModifyPartsLabel;
+    public Label LabelMachineIDCompanyName;
 
     @FXML
-    public Label LabelMachineIDCompanyName;
+    public Label AddModifyPartsLabel;
 
     @FXML
     public TextField TextMinPart;
@@ -65,6 +65,9 @@ public class AddModifyPartsController {
 
     @FXML
     private RadioButton RadioInHousePart;
+
+    @FXML
+    private RadioButton RadioOutsourced;
 
     @FXML
     private ToggleGroup InHouseOrOutsourced;
@@ -112,33 +115,67 @@ public class AddModifyPartsController {
         boolean isInHouseInstance = part instanceof InHouse;
 
         if (isInHouseInstance) {
+            System.out.println("This part is an in-house part.");
             TextMachineCompanyPart.setText(String.valueOf(((InHouse) selectedPart).getMachineID()));
+            RadioInHousePart.setSelected(true);
+            LabelMachineIDCompanyName.setText("Machine ID");
+
         }
 
         else {
+            System.out.println("This part is an outsourced part");
             TextMachineCompanyPart.setText(String.valueOf(((Outsourced) selectedPart).getCompanyName()));
+            RadioOutsourced.setSelected(true);
+            LabelMachineIDCompanyName.setText("Company Name");
         }
     }
 
     @FXML
     public void OnPartInHouseRadio(ActionEvent actionEvent) {
         LabelMachineIDCompanyName.setText("Machine ID");
+        if (!TextPartID.getText().trim().isEmpty()) {
+            System.out.println("The outsourced part was made to be in-house");
+            selectedPart = makePartInHouse((Outsourced) selectedPart);
+        }
+    }
+
+    private InHouse makePartInHouse(Outsourced selectedPart) {
+        InHouse inHouseNow = new InHouse(selectedPart.getId(), selectedPart.getName(),
+                selectedPart.getPrice(), selectedPart.getStock(), selectedPart.getMin(),
+                selectedPart.getMax(), 0);
+        return inHouseNow;
     }
 
     @FXML
     public void OnPartOutsourcedRadio(ActionEvent actionEvent) {
         LabelMachineIDCompanyName.setText("Company Name");
+        if (!TextPartID.getText().trim().isEmpty()) {
+            System.out.println("The In-house part was made to be outsourced");
+            selectedPart = makePartOutsourced((InHouse) selectedPart);
+        }
  }
 
+    private Outsourced makePartOutsourced(InHouse selectedPart) {
+        Outsourced outsourcedNow = new Outsourced(selectedPart.getId(), selectedPart.getName(),
+                selectedPart.getPrice(), selectedPart.getStock(), selectedPart.getMin(),
+                selectedPart.getMax(), "");
+        return outsourcedNow;
+    }
+
     @FXML
-    public void OnPartsSaveButton(ActionEvent actionEvent) {
+    public void OnPartsSaveButton(ActionEvent actionEvent) throws IOException {
+
         System.out.println("This will commit the data to the observable list(view)");
+
         // check if this is a new part, if so make new part and assign ID
         if (TextPartID.getText().trim().isEmpty()) {
+
             partIdCounter++;
             Part newPart;
+
             if (RadioInHousePart.isSelected()) {
                 System.out.println("This is a new InHouse Part");
+
                 newPart = new InHouse(partIdCounter, TextPartName.getText(),
                         Integer.parseInt(TextPriceCostPart.getText()),
                         Integer.parseInt(TextInventoryPart.getText()), Integer.parseInt(TextMinPart.getText()),
@@ -147,6 +184,7 @@ public class AddModifyPartsController {
             }
             else {
                 System.out.println("This is a new Outsourced Part");
+
                 newPart = new Outsourced(partIdCounter, TextPartName.getText(),
                         Integer.parseInt(TextPriceCostPart.getText()),
                         Integer.parseInt(TextInventoryPart.getText()), Integer.parseInt(TextMinPart.getText()),
@@ -155,6 +193,9 @@ public class AddModifyPartsController {
             Inventory.addPart(newPart);
 
         }
+        // else if the part is not new, set the properties of the part and check if
+        // it is an InHouse or Outsourced part to determine whether to save the
+        // machine ID or the Company Name.
         else {
             selectedPart.setName(String.valueOf(TextPartName.getText()));
             selectedPart.setStock(Integer.parseInt(TextInventoryPart.getText()));
@@ -162,24 +203,28 @@ public class AddModifyPartsController {
             selectedPart.setMin(Integer.parseInt(TextMinPart.getText()));
             selectedPart.setMax(Integer.parseInt(TextMaxPart.getText()));
             if(RadioInHousePart.isSelected()){
-                InHouse inHousePart = (InHouse)selectedPart;
+                InHouse inHousePart = (InHouse) selectedPart;
                 inHousePart.setMachineID(Integer.parseInt(TextMachineCompanyPart.getText()));
+                Inventory.updatePart((Integer.parseInt(TextPartID.getText())-1), inHousePart);
             }
             else {
-                Outsourced outsourcedPart = (Outsourced)selectedPart;
+                Outsourced outsourcedPart = (Outsourced) selectedPart;
                 outsourcedPart.setCompanyName(TextMachineCompanyPart.getText());
+                Inventory.updatePart((Integer.parseInt(TextPartID.getText())-1), outsourcedPart);
             }
         }
 
-
-       //? partsTableView.getItem()
+        loadMain(actionEvent);
     }
 
     @FXML
-    public void OnCancelButton(ActionEvent actionEvent) throws IOException {
+    public void OnCancelButton(ActionEvent actionEvent) throws IOException{
         System.out.println("Cancel button pressed");
+        loadMain(actionEvent);
+    }
 
-        Parent root = FXMLLoader.load(getClass().getResource("/view/Main.fxml"));
+    public void loadMain(ActionEvent actionEvent) throws IOException{
+        Parent root = FXMLLoader.load(getClass().getResource("../view/Main.fxml"));
         Stage mainStage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
         mainStage.setTitle("Inventory Management Main");
         mainStage.setScene(new Scene(root, 1500, 975));

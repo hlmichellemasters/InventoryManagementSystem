@@ -4,6 +4,7 @@
 
 package controller;
 
+import javafx.scene.control.Label;
 import model.Inventory;
 import model.Part;
 
@@ -107,6 +108,7 @@ public class MainController implements Initializable {
         Scene scene = new Scene(root, 1500, 875);
 
         AddModifyPartsController controller = loader.getController();
+        controller.AddModifyPartsLabel.setText("Modify Part");
         controller.initData((Part) partsTableView.getSelectionModel().getSelectedItem());
 
         Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
@@ -127,6 +129,6 @@ public class MainController implements Initializable {
         Part selectedPart = (Part) partsTableView.getSelectionModel().getSelectedItem();
 
         //Add dialog box to confirm
-        allParts.remove(selectedPart);
+        Inventory.deletePart(selectedPart);
     }
 }
