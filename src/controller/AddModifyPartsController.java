@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import model.InHouse;
+import model.Inventory;
 import model.Outsourced;
 import model.Part;
 
@@ -22,6 +23,7 @@ public class AddModifyPartsController {
 
 
     private Part selectedPart;
+    private int partIdCounter = 4;   // 4 parts are pre-loaded into Inventory
 
 /** Labels and TextField */
 
@@ -131,6 +133,46 @@ public class AddModifyPartsController {
     @FXML
     public void OnPartsSaveButton(ActionEvent actionEvent) {
         System.out.println("This will commit the data to the observable list(view)");
+        // check if this is a new part, if so make new part and assign ID
+        if (TextPartID.getText().trim().isEmpty()) {
+            partIdCounter++;
+            Part newPart;
+            if (RadioInHousePart.isSelected()) {
+                System.out.println("This is a new InHouse Part");
+                newPart = new InHouse(partIdCounter, TextPartName.getText(),
+                        Integer.parseInt(TextPriceCostPart.getText()),
+                        Integer.parseInt(TextInventoryPart.getText()), Integer.parseInt(TextMinPart.getText()),
+                        Integer.parseInt(TextMaxPart.getText()),
+                        Integer.parseInt(TextMachineCompanyPart.getText()));
+            }
+            else {
+                System.out.println("This is a new Outsourced Part");
+                newPart = new Outsourced(partIdCounter, TextPartName.getText(),
+                        Integer.parseInt(TextPriceCostPart.getText()),
+                        Integer.parseInt(TextInventoryPart.getText()), Integer.parseInt(TextMinPart.getText()),
+                        Integer.parseInt(TextMaxPart.getText()), TextMachineCompanyPart.getText());
+            }
+            Inventory.addPart(newPart);
+
+        }
+        else {
+            selectedPart.setName(String.valueOf(TextPartName.getText()));
+            selectedPart.setStock(Integer.parseInt(TextInventoryPart.getText()));
+            selectedPart.setPrice(Double.parseDouble(TextPriceCostPart.getText()));
+            selectedPart.setMin(Integer.parseInt(TextMinPart.getText()));
+            selectedPart.setMax(Integer.parseInt(TextMaxPart.getText()));
+            if(RadioInHousePart.isSelected()){
+                InHouse inHousePart = (InHouse)selectedPart;
+                inHousePart.setMachineID(Integer.parseInt(TextMachineCompanyPart.getText()));
+            }
+            else {
+                Outsourced outsourcedPart = (Outsourced)selectedPart;
+                outsourcedPart.setCompanyName(TextMachineCompanyPart.getText());
+            }
+        }
+
+
+       //? partsTableView.getItem()
     }
 
     @FXML

@@ -119,6 +119,14 @@ public class MainController implements Initializable {
 
     }
 
+    /**
+     * This method will delete a selected part after getting confirmation from a dialog box.
+     * @param actionEvent
+     */
     public void OnPartDeleteButton(ActionEvent actionEvent) {
+        Part selectedPart = (Part) partsTableView.getSelectionModel().getSelectedItem();
+
+        //Add dialog box to confirm
+        allParts.remove(selectedPart);
     }
 }
