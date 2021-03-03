@@ -4,7 +4,8 @@
 
 package controller;
 
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import model.Inventory;
 import model.Part;
 
@@ -14,17 +15,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 
@@ -41,6 +41,8 @@ public class MainController implements Initializable {
 
     @FXML
     public Button OnPartDeleteButton;
+
+    @FXML TextField OnSearchText;
 
     @FXML
     private TableColumn partIDColumn;
@@ -78,11 +80,47 @@ public class MainController implements Initializable {
     }
 
     /**
+     * This method searches for a substring of a part name to locate any matching parts.
+     */
+    public void OnSearchStringEntered(KeyEvent keyEvent) {
+        System.out.println("Search string entered");
+        String key = keyEvent.getCharacter();
+        boolean isNumericKey = isNumeric(key);
+        if (isNumericKey) {
+            ObservableList<Part> matchedIDParts = Inventory.lookupPart(
+                    Integer.parseInt(OnSearchText.getText()));
+            partsTableView.setItems(matchedIDParts);
+        }
+        else {
+
+            ObservableList<Part> matchedNameParts = Inventory.lookupPart(OnSearchText.getText());
+            partsTableView.setItems(matchedNameParts);
+        }
+
+    }
+
+    public static boolean isNumeric(String numOrString) {
+
+        if (numOrString == null) {
+            return false;
+        }
+
+        try {
+            double d = Double.parseDouble(numOrString);
+        }
+
+        catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * This method opens the scene for adding a new part.
      * @param actionEvent
      * @throws IOException
      */
-    public void OnPartAddButton(ActionEvent actionEvent) throws IOException {
+    public void OnPartAddButton(@NotNull ActionEvent actionEvent) throws IOException {
         System.out.println("Pressed Part Add Button");
 
         Parent root = FXMLLoader.load(getClass().getResource("../view/AddModifyPartScene.fxml"));
@@ -100,25 +138,31 @@ public class MainController implements Initializable {
      */
     public void OnPartModifyButton(ActionEvent actionEvent) throws IOException {
         System.out.println("Pressed Part Modify Button");
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("../view/AddModifyPartScene.fxml"));
+            Parent root = loader.load();
 
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("../view/AddModifyPartScene.fxml"));
-        Parent root = loader.load();
+            Scene scene = new Scene(root, 1500, 875);
 
-        Scene scene = new Scene(root, 1500, 875);
+            AddModifyPartsController controller = loader.getController();
+            controller.AddModifyPartsLabel.setText("Modify Part");
+            controller.initData((Part) partsTableView.getSelectionModel().getSelectedItem());
 
-        AddModifyPartsController controller = loader.getController();
-        controller.AddModifyPartsLabel.setText("Modify Part");
-        controller.initData((Part) partsTableView.getSelectionModel().getSelectedItem());
+            Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+            stage.setTitle("Modify Part");
+            stage.setScene(scene);
 
-        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
-        stage.setTitle("Modify Part");
-        stage.setScene(scene);
+            stage.show();
 
-        stage.show();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Part not found");
+            alert.setContentText("Please select a part in order to modify a part");
 
-        // add method to have pop-up saying to select the item to modify.
-
+            alert.showAndWait();
+        }
     }
 
     /**
@@ -128,7 +172,14 @@ public class MainController implements Initializable {
     public void OnPartDeleteButton(ActionEvent actionEvent) {
         Part selectedPart = (Part) partsTableView.getSelectionModel().getSelectedItem();
 
-        //Add dialog box to confirm
-        Inventory.deletePart(selectedPart);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Delete item?");
+        alert.setContentText("Confirm you want to delete " + selectedPart.getName());
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            Inventory.deletePart(selectedPart);
+        }
     }
 }

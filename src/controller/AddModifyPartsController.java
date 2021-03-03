@@ -17,6 +17,7 @@ import model.Outsourced;
 import model.Part;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 public class AddModifyPartsController {
@@ -220,7 +221,17 @@ public class AddModifyPartsController {
     @FXML
     public void OnCancelButton(ActionEvent actionEvent) throws IOException{
         System.out.println("Cancel button pressed");
-        loadMain(actionEvent);
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Cancel your item?");
+        alert.setContentText("Confirm you don't want to save your addition or modification");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            loadMain(actionEvent);
+        }
+
     }
 
     public void loadMain(ActionEvent actionEvent) throws IOException{

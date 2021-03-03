@@ -4,6 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 
+import java.util.Locale;
+
 public class Inventory {
 
     private static ObservableList<Part> allParts = FXCollections.observableArrayList();
@@ -32,14 +34,28 @@ public class Inventory {
         return allParts;
     }
 
-    public Part lookupPart(int partID){
+    public static ObservableList<Part> lookupPart(int partID){
 
-        return null;    // Change to return Part
+        ObservableList<Part> matchedPartsList = FXCollections.observableArrayList();
+
+        for (Part part: allParts) {
+            if (part.getId() == partID) {
+                matchedPartsList.add(part);
+            }
+        }
+        return matchedPartsList;
     }
 
-    public Part lookupPart(String partName){
+    public static ObservableList<Part> lookupPart(String partName){
 
-        return null;    // Change to return ObservableList<Part>
+        ObservableList<Part> matchedPartsList = FXCollections.observableArrayList();
+
+        for (Part part: allParts) {
+            if (part.getName().toLowerCase().contains(partName.toLowerCase())) {
+                matchedPartsList.add(part);
+            }
+        }
+        return matchedPartsList;
     }
 
     public static void updatePart(int index, Part selectedPart){
