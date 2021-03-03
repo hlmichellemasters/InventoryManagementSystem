@@ -178,16 +178,27 @@ public class MainController implements Initializable {
      * @param actionEvent
      */
     public void OnPartDeleteButton(ActionEvent actionEvent) {
-        Part selectedPart = (Part) partsTableView.getSelectionModel().getSelectedItem();
+        try {
+            Part selectedPart = (Part) partsTableView.getSelectionModel().getSelectedItem();
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Delete item?");
-        alert.setContentText("Confirm you want to delete " + selectedPart.getName());
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation");
+            alert.setHeaderText("Delete item?");
+            alert.setContentText("Confirm you want to delete " + selectedPart.getName());
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            Inventory.deletePart(selectedPart);
-        }
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.get() == ButtonType.OK) {
+                Inventory.deletePart(selectedPart);
+            }
+
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Part not found");
+            alert.setContentText("Please select a part in order to delete a part");
+
+            alert.showAndWait();
+            }
     }
 }
