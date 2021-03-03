@@ -83,35 +83,43 @@ public class MainController implements Initializable {
      * This method searches for a substring of a part name to locate any matching parts.
      */
     public void OnSearchStringEntered(KeyEvent keyEvent) {
-        System.out.println("Search string entered");
-        String key = keyEvent.getCharacter();
-        boolean isNumericKey = isNumeric(key);
-        if (isNumericKey) {
-            ObservableList<Part> matchedIDParts = Inventory.lookupPart(
-                    Integer.parseInt(OnSearchText.getText()));
-            partsTableView.setItems(matchedIDParts);
-        }
-        else {
 
-            ObservableList<Part> matchedNameParts = Inventory.lookupPart(OnSearchText.getText());
-            partsTableView.setItems(matchedNameParts);
-        }
+        String searchString = OnSearchText.getText();
+        boolean isNumericString = isNumeric(searchString);
+        ObservableList<Part> matchedParts = FXCollections.observableArrayList();
 
+            if (isNumericString) {
+
+                matchedParts.add(Inventory.lookupPart(Integer.parseInt(searchString)));
+            }
+
+            else {
+
+                matchedParts = Inventory.lookupPart(OnSearchText.getText());
+            }
+
+        partsTableView.setItems(matchedParts);
     }
+
+
 
     public static boolean isNumeric(String numOrString) {
 
         if (numOrString == null) {
+
             return false;
         }
 
         try {
-            double d = Double.parseDouble(numOrString);
+
+            Integer.parseInt(numOrString);
         }
 
         catch (NumberFormatException nfe) {
+
             return false;
         }
+
         return true;
     }
 

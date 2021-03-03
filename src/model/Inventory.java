@@ -14,10 +14,12 @@ public class Inventory {
 
 
     static {
+
         addTestData(); // sets list as the items within the tableview
     }
 
     public static void addTestData(){
+
         allParts.add(new InHouse(1, "L. acidophilus", 500.00, 20, 5, 100, 00));
         allParts.add(new InHouse(2, "B. bifidum", 300.00, 30, 10, 200, 001));
         allParts.add(new Outsourced(3, "Corn Maltodextrin", 50.00, 15, 5, 50, "Chemicals Inc"));
@@ -34,16 +36,14 @@ public class Inventory {
         return allParts;
     }
 
-    public static ObservableList<Part> lookupPart(int partID){
-
-        ObservableList<Part> matchedPartsList = FXCollections.observableArrayList();
+    public static Part lookupPart(int partID){
 
         for (Part part: allParts) {
             if (part.getId() == partID) {
-                matchedPartsList.add(part);
+                return part;
             }
         }
-        return matchedPartsList;
+        return null;
     }
 
     public static ObservableList<Part> lookupPart(String partName){
@@ -59,11 +59,13 @@ public class Inventory {
     }
 
     public static void updatePart(int index, Part selectedPart){
+
         allParts.remove(index);
         allParts.add(selectedPart);
     }
 
     public static boolean deletePart(Part selectedPart){
+
         allParts.remove(selectedPart);
         return true;
     }
