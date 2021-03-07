@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
 <!--xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"*/-->
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="1328.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="1328.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
 
    <children>
 
@@ -35,5 +39,31 @@
             <Font name="System Bold" size="36.0" />
          </font>
       </Label>
+      <AnchorPane layoutX="648.0" layoutY="152.0" prefHeight="637.0" prefWidth="646.0">
+         <children>
+            <Label layoutX="39.0" layoutY="-5.0" prefHeight="52.0" prefWidth="120.0" text="Products">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <TextField fx:id="OnSearchTextProduct" layoutX="414.0" layoutY="21.0" onKeyTyped="#OnSearchStringEnteredProduct" prefHeight="27.0" prefWidth="184.0" promptText="Search by Product ID or Name" />
+            <Button fx:id="OnProductAddButton" layoutX="377.0" layoutY="454.0" mnemonicParsing="false" onAction="#OnProductAddButton" text="Add" />
+            <Button fx:id="OnProductModifyButton" layoutX="430.0" layoutY="454.0" mnemonicParsing="false" onAction="#OnProductModifyButton" text="Modify" />
+            <Button fx:id="OnProductDeleteButton" layoutX="506.0" layoutY="454.0" mnemonicParsing="false" onAction="#OnProductDeleteButton" text="Delete" />
+            <TableView fx:id="productsTableView" layoutX="-2.0" layoutY="51.0" prefHeight="354.0" prefWidth="590.0" AnchorPane.rightAnchor="17.0">
+               <columns>
+                  <TableColumn fx:id="productIDColumn" prefWidth="81.0" text="Product ID" />
+                  <TableColumn fx:id="productNameColumn" prefWidth="202.0" text="Product Name" />
+                  <TableColumn fx:id="productInventoryLevelColumn" prefWidth="143.0" text="Inventory Level" />
+                  <TableColumn fx:id="productPriceCostPerUnitColumn" prefWidth="162.0" text="Price / Cost per Unit" />
+               </columns>
+            </TableView>
+            <Button fx:id="OnExitProgramButton" cancelButton="true" layoutX="430.0" layoutY="575.0" mnemonicParsing="false" onAction="#OnExitProgramButton" text="Exit">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>

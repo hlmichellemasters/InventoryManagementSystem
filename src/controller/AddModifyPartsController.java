@@ -30,7 +30,9 @@ public class AddModifyPartsController {
     private Part selectedPart;
     private int partIdCounter = 4;   // 4 parts are pre-loaded into Inventory
 
-/** Labels and TextField */
+    /**
+     * Labels and TextField
+     */
 
     @FXML
     public Label LabelMachineIDCompanyName;
@@ -60,8 +62,9 @@ public class AddModifyPartsController {
     private TextField TextMachineCompanyPart;
 
 
-
-/** Buttons */
+    /**
+     * Buttons
+     */
     @FXML
     public Button ButtonSavePart;
 
@@ -86,7 +89,9 @@ public class AddModifyPartsController {
     @FXML
     private Button OnPartDeleteButton;
 
-/** Table */
+    /**
+     * Table
+     */
     @FXML
     private TableView<?> partsTableView;
 
@@ -106,9 +111,10 @@ public class AddModifyPartsController {
 
     /**
      * This method accepts a part from the list to modify and initializes the view of the modify scene.
+     *
      * @param part
      */
-    public void initData(Part part){
+    public void initData(Part part) {
         selectedPart = part;
         TextPartID.setText(String.valueOf(selectedPart.getId()));
         TextPartName.setText(selectedPart.getName());
@@ -117,17 +123,13 @@ public class AddModifyPartsController {
         TextMaxPart.setText(String.valueOf(selectedPart.getMax()));
         TextPriceCostPart.setText(String.valueOf(selectedPart.getPrice()));
 
-        boolean isInHouseInstance = part instanceof InHouse;
-
-        if (isInHouseInstance) {
+        if (part instanceof InHouse) {  // check if part is an instance of Inhouse
             System.out.println("This part is an in-house part.");
             TextMachineCompanyPart.setText(String.valueOf(((InHouse) selectedPart).getMachineID()));
             RadioInHousePart.setSelected(true);
             LabelMachineIDCompanyName.setText("Machine ID");
 
-        }
-
-        else {
+        } else {  // part is an instance of Outsourced
             System.out.println("This part is an outsourced part");
             TextMachineCompanyPart.setText(String.valueOf(((Outsourced) selectedPart).getCompanyName()));
             RadioOutsourced.setSelected(true);
@@ -158,7 +160,7 @@ public class AddModifyPartsController {
             System.out.println("The In-house part was made to be outsourced");
             selectedPart = makePartOutsourced((InHouse) selectedPart);
         }
- }
+    }
 
     private Outsourced makePartOutsourced(InHouse selectedPart) {
         Outsourced outsourcedNow = new Outsourced(selectedPart.getId(), selectedPart.getName(),
@@ -172,58 +174,103 @@ public class AddModifyPartsController {
 
         System.out.println("This will commit the data to the observable list(view)");
 
-        // check if this is a new part, if so make new part and assign ID
-        if (TextPartID.getText().trim().isEmpty()) {
+        // Check if any of the fields are empty and throw an error dialog if so.
+        if (TextPartName.getText().isBlank() || TextPriceCostPart.getText().isBlank() ||
+                TextInventoryPart.getText().isBlank() || TextMinPart.getText().isBlank() ||
+                TextMaxPart.getText().isBlank() || TextMachineCompanyPart.getText().isBlank()) {
 
-            partIdCounter++;
-            Part newPart;
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Empty Fields Found");
+            alert.setContentText("Please enter appropriate information into every field");
 
-            if (RadioInHousePart.isSelected()) {
-                System.out.println("This is a new InHouse Part");
-
-                newPart = new InHouse(partIdCounter, TextPartName.getText(),
-                        Integer.parseInt(TextPriceCostPart.getText()),
-                        Integer.parseInt(TextInventoryPart.getText()), Integer.parseInt(TextMinPart.getText()),
-                        Integer.parseInt(TextMaxPart.getText()),
-                        Integer.parseInt(TextMachineCompanyPart.getText()));
-            }
-            else {
-                System.out.println("This is a new Outsourced Part");
-
-                newPart = new Outsourced(partIdCounter, TextPartName.getText(),
-                        Integer.parseInt(TextPriceCostPart.getText()),
-                        Integer.parseInt(TextInventoryPart.getText()), Integer.parseInt(TextMinPart.getText()),
-                        Integer.parseInt(TextMaxPart.getText()), TextMachineCompanyPart.getText());
-            }
-            Inventory.addPart(newPart);
-
+            alert.showAndWait();
         }
-        // else if the part is not new, set the properties of the part and check if
-        // it is an InHouse or Outsourced part to determine whether to save the
-        // machine ID or the Company Name.
-        else {
-            selectedPart.setName(String.valueOf(TextPartName.getText()));
-            selectedPart.setStock(Integer.parseInt(TextInventoryPart.getText()));
-            selectedPart.setPrice(Double.parseDouble(TextPriceCostPart.getText()));
-            selectedPart.setMin(Integer.parseInt(TextMinPart.getText()));
-            selectedPart.setMax(Integer.parseInt(TextMaxPart.getText()));
-            if(RadioInHousePart.isSelected()){
-                InHouse inHousePart = (InHouse) selectedPart;
-                inHousePart.setMachineID(Integer.parseInt(TextMachineCompanyPart.getText()));
-                Inventory.updatePart((Integer.parseInt(TextPartID.getText())-1), inHousePart);
-            }
-            else {
-                Outsourced outsourcedPart = (Outsourced) selectedPart;
-                outsourcedPart.setCompanyName(TextMachineCompanyPart.getText());
-                Inventory.updatePart((Integer.parseInt(TextPartID.getText())-1), outsourcedPart);
-            }
+        try {
+            Double.parseDouble(TextPriceCostPart.getText());
+            Integer.parseInt(TextInventoryPart.getText());
+            Integer.parseInt(TextMinPart.getText());
+            Integer.parseInt(TextMaxPart.getText());
+
+        } catch (NumberFormatException nfe) {
+            showErrorMessage(nfe, "Error in a numeric field", "Enter only numbers in the Price/Cost," +
+                    "Inventory/Stock, Min, and Max fields.");
         }
 
-        loadMain(actionEvent);
-    }
+        String partName = TextPartName.getText();
+        double priceCostPart = Double.parseDouble(TextPriceCostPart.getText());
+        int inventoryPart = Integer.parseInt(TextInventoryPart.getText());
+        int minPart = Integer.parseInt(TextMinPart.getText());
+        int maxPart = Integer.parseInt(TextMaxPart.getText());
+
+        if (minPart >= maxPart || inventoryPart < minPart || inventoryPart > maxPart) {
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Inventory Error");
+            alert.setContentText("Inventory / Stock must be less than max and more than min, " +
+                    "and max must be more than min.");
+            alert.showAndWait();
+        }
+            // check if this is a new part, if so make new part and assign ID
+            if (TextPartID.getText().trim().isEmpty()) {
+
+                partIdCounter++;
+                Part newPart;
+
+                if (RadioInHousePart.isSelected()) {
+                    System.out.println("This is a new InHouse Part");
+
+                    try {
+                        Integer.parseInt(TextMachineCompanyPart.getText());
+
+                    } catch (NumberFormatException e) {
+                        Alert machineIDAlert = new Alert(Alert.AlertType.ERROR);
+                        machineIDAlert.setTitle("Error");
+                        machineIDAlert.setHeaderText("Machine ID Error");
+                        machineIDAlert.setContentText("In-House items need to have numerical Machine IDs.");
+                        machineIDAlert.showAndWait();
+                    }
+
+                    newPart = new InHouse(partIdCounter, partName, priceCostPart, inventoryPart, minPart,
+                            maxPart, Integer.parseInt(TextMachineCompanyPart.getText()));
+                } else {
+                    System.out.println("This is a new Outsourced Part");
+
+                    newPart = new Outsourced(partIdCounter, partName, priceCostPart, inventoryPart, minPart,
+                            maxPart, TextMachineCompanyPart.getText());
+                }
+
+                Inventory.addPart(newPart);
+
+            }
+            // else if the part is not new, set the properties of the part and check if
+            // it is an InHouse or Outsourced part to determine whether to save the
+            // machine ID or the Company Name.
+            else {
+                selectedPart.setName(partName);
+                selectedPart.setStock(inventoryPart);
+                selectedPart.setPrice(priceCostPart);
+                selectedPart.setMin(minPart);
+                selectedPart.setMax(maxPart);
+
+                if (RadioInHousePart.isSelected()) {
+                    InHouse inHousePart = (InHouse) selectedPart;
+                    inHousePart.setMachineID(Integer.parseInt(TextMachineCompanyPart.getText()));
+                    Inventory.updatePart((Integer.parseInt(TextPartID.getText()) - 1), inHousePart);
+                } else {
+                    Outsourced outsourcedPart = (Outsourced) selectedPart;
+                    outsourcedPart.setCompanyName(TextMachineCompanyPart.getText());
+                    Inventory.updatePart((Integer.parseInt(TextPartID.getText()) - 1), outsourcedPart);
+                }
+            }
+
+            loadMain(actionEvent);
+        }
+
 
     @FXML
-    public void OnCancelButton(ActionEvent actionEvent) throws IOException{
+    public void OnCancelButton(ActionEvent actionEvent) throws IOException {
         System.out.println("Cancel button pressed");
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -232,13 +279,13 @@ public class AddModifyPartsController {
         alert.setContentText("Confirm you don't want to save your addition or modification");
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
+        if (result.isPresent() && result.get() == ButtonType.OK) {
             loadMain(actionEvent);
         }
 
     }
 
-    public void loadMain(ActionEvent actionEvent) throws IOException{
+    public void loadMain(ActionEvent actionEvent) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("../view/Main.fxml"));
         Stage mainStage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
         mainStage.setTitle("Inventory Management Main");

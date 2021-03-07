@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("../view/Main.fxml"));
         primaryStage.setTitle("Inventory Management Main");
         primaryStage.setScene(new Scene(root, 1500, 975));

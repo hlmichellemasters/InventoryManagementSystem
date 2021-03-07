@@ -19,6 +19,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import model.Product;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -34,6 +35,9 @@ public class MainController implements Initializable {
     public TableView partsTableView;
 
     @FXML
+    public TableView productsTableView;
+
+    @FXML
     public Button OnPartAddButton;
 
     @FXML
@@ -42,7 +46,14 @@ public class MainController implements Initializable {
     @FXML
     public Button OnPartDeleteButton;
 
-    @FXML TextField OnSearchText;
+    @FXML
+    private Button OnExitProgramButton;
+
+    @FXML
+    private TextField OnSearchText;
+
+    @FXML
+    private TextField OnSearchTextProduct;
 
     @FXML
     private TableColumn partIDColumn;
@@ -57,9 +68,22 @@ public class MainController implements Initializable {
     private TableColumn partPriceCostPerUnitColumn;
 
     @FXML
+    private TableColumn productIDColumn;
+
+    @FXML
+    private TableColumn productNameColumn;
+
+    @FXML
+    private TableColumn productInventoryLevelColumn;
+
+    @FXML
+    private TableColumn productPriceCostPerUnitColumn;
+
+    @FXML
     private ObservableList<Part> allParts = FXCollections.observableArrayList();
 
-    // insert Product Observable List like above.
+    @FXML
+    private ObservableList<Product> allProducts = FXCollections.observableArrayList();
 
 
 
@@ -75,9 +99,24 @@ public class MainController implements Initializable {
         partInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
         partPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
 
-        System.out.println("Initialized!");
+        productsTableView.setItems(Inventory.getAllProducts());
 
+        productIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        productNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        productInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        productPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        System.out.println("Initialized!");
     }
+
+    public void OnExitProgramButton(ActionEvent actionEvent) {
+        Stage stage = (Stage) OnExitProgramButton.getScene().getWindow();
+        stage.close();
+    }
+
+
+
+/** Parts (Left side) *************************************************************************/
 
     /**
      * This method searches for a substring of a part name to locate any matching parts.
@@ -128,7 +167,7 @@ public class MainController implements Initializable {
      * @param actionEvent
      * @throws IOException
      */
-    public void OnPartAddButton(@NotNull ActionEvent actionEvent) throws IOException {
+    public void OnPartAddButton(ActionEvent actionEvent) throws IOException {
         System.out.println("Pressed Part Add Button");
 
         Parent root = FXMLLoader.load(getClass().getResource("../view/AddModifyPartScene.fxml"));
@@ -166,8 +205,8 @@ public class MainController implements Initializable {
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
-            alert.setHeaderText("Part not found");
-            alert.setContentText("Please select a part in order to modify a part");
+            alert.setHeaderText("Product not found");
+            alert.setContentText("Please select a product in order to modify a product");
 
             alert.showAndWait();
         }
@@ -201,4 +240,61 @@ public class MainController implements Initializable {
             alert.showAndWait();
             }
     }
+
+    public void OnSearchStringEnteredProduct(KeyEvent keyEvent) {
+        String searchString = OnSearchTextProduct.getText();
+        boolean isNumericString = isNumeric(searchString);
+        ObservableList<Product> matchedProducts = FXCollections.observableArrayList();
+
+        if (isNumericString) {
+
+            matchedProducts.add(Inventory.lookupProduct(Integer.parseInt(searchString)));
+        }
+
+        else {
+
+            matchedProducts = Inventory.lookupProduct(OnSearchTextProduct.getText());
+        }
+
+        productsTableView.setItems(matchedProducts);
+    }
+
+    public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
+        System.out.println("Pressed Product Add Button");
+
+        Parent root = FXMLLoader.load(getClass().getResource("../view/AddModifyProductScene.fxml"));
+        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root, 1500, 875);
+        stage.setTitle("Add Product");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void OnProductModifyButton(ActionEvent actionEvent) {
+    }
+
+    public void OnProductDeleteButton(ActionEvent actionEvent) {
+    }
+
+
+
+    /** Products (Right side) *************************************************************************/
+
+//    public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
+//        FXMLLoader loader = new FXMLLoader();
+//        loader.setLocation(getClass().getResource("../view/AddModifyProductScene.fxml"));
+//        Parent root = loader.load();
+//
+//        Scene scene = new Scene(root, 1500, 875);
+//
+//        AddModifyProductController controller = loader.getController();
+//        controller.AddModifyProductLabel.setText("Add Product");
+//        controller.InitPickPartData(Inventory.getAllParts());
+//
+//        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+//        stage.setTitle("Add Product");
+//        stage.setScene(scene);
+//
+//        stage.show();
+//    }
 }

@@ -1,22 +1,24 @@
 package model;
 
-/**
- * Supplied class Part.java
- */
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
  * @author Heaven-Leigh (Michelle) Masters
  */
 
-public abstract class Part {
+public class Product {
+
+    private ObservableList<Part> associatedParts;
     private int id;
     private String name;
     private double price;
     private int stock;
     private int min;
     private int max;
-    public Part(int id, String name, double price, int stock, int min, int max) {
+
+    public Product(int id, String name, double price, int stock, int min, int max) {
 
         this.id = id;
         this.name = name;
@@ -108,5 +110,26 @@ public abstract class Part {
      */
     public void setMax(int max) {
         this.max = max;
+    }
+
+    private ObservableList<Part> getAllAssociatedParts() {
+
+        return associatedParts;
+    }
+
+    private void addAssociatedPart(Part part) {
+
+        associatedParts.add(part);
+    }
+
+    private boolean deleteAssociatedPart(Part selectedAssociatedPart) {
+        try {
+            associatedParts.remove(selectedAssociatedPart);
+        } catch (Exception e){
+            // add some kind of error statement, is this error even possible?
+            return false;
+        }
+
+        return true;
     }
 }

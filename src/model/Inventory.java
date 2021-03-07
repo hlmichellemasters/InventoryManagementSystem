@@ -10,7 +10,7 @@ public class Inventory {
 
     private static ObservableList<Part> allParts = FXCollections.observableArrayList();
 
-//    private ObservableList<Product> allProducts;
+    private static ObservableList<Product> allProducts = FXCollections.observableArrayList();
 
 
     static {
@@ -24,6 +24,9 @@ public class Inventory {
         allParts.add(new InHouse(2, "B. bifidum", 300.00, 30, 10, 200, 001));
         allParts.add(new Outsourced(3, "Corn Maltodextrin", 50.00, 15, 5, 50, "Chemicals Inc"));
         allParts.add(new Outsourced(4, "Inulin", 30.00, 10, 4, 40, "Fiber LLC"));
+
+        allProducts.add(new Product(1, "Test Blend", 1000.00, 5, 0, 10));
+        allProducts.add(new Product(2, "New Blend", 800.00, 1, 0, 1));
     }
 
     public static void addPart(Part part){
@@ -31,9 +34,19 @@ public class Inventory {
         allParts.add(part);
     }
 
+    public static void addProduct(Product product) {
+
+        allProducts.add(product);
+    }
+
     public static ObservableList<Part> getAllParts(){
 
         return allParts;
+    }
+
+    public static ObservableList<Product> getAllProducts() {
+
+        return allProducts;
     }
 
     public static Part lookupPart(int partID){
@@ -58,10 +71,38 @@ public class Inventory {
         return matchedPartsList;
     }
 
+    public static Product lookupProduct(int productID) {
+
+        for (Product product: allProducts) {
+            if (product.getId() == productID) {
+                return product;
+            }
+        }
+        return null;
+    }
+
+    public static ObservableList<Product> lookupProduct(String productName) {
+
+        ObservableList<Product> matchedProductsList = FXCollections.observableArrayList();
+
+        for (Product product: allProducts) {
+            if (product.getName().toLowerCase().contains(productName.toLowerCase())) {
+                matchedProductsList.add(product);
+            }
+        }
+        return matchedProductsList;
+    }
+
     public static void updatePart(int index, Part selectedPart){
 
         allParts.remove(index);
         allParts.add(selectedPart);
+    }
+
+    public static void updateProduct(int index, Product selectedProduct) {
+
+        allProducts.remove(index);
+        allProducts.add(selectedProduct);
     }
 
     public static boolean deletePart(Part selectedPart){
@@ -70,11 +111,11 @@ public class Inventory {
         return true;
     }
 
+    public static boolean deleteProduct(Product selectedProduct) {
 
-//    public Product lookupProduct(int productID){
-
-//        return null;    // Change to return Product
-//    }
+        allProducts.remove(selectedProduct);
+        return true;
+    }
 
 
 }
