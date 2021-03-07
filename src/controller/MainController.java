@@ -20,8 +20,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import model.Product;
-import org.jetbrains.annotations.NotNull;
-
 
 import java.io.IOException;
 import java.net.URL;
@@ -241,6 +239,26 @@ public class MainController implements Initializable {
             }
     }
 
+    /** Products (Right side) *************************************************************************/
+
+    public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("../view/AddModifyProductScene.fxml"));
+        Parent root = loader.load();
+
+        Scene scene = new Scene(root, 1500, 875);
+
+        AddModifyProductController controller = loader.getController();
+        controller.AddModifyProductLabel.setText("Add Product");
+        controller.InitializePickPartsTable();
+
+        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        stage.setTitle("Add Product");
+        stage.setScene(scene);
+
+        stage.show();
+    }
+
     public void OnSearchStringEnteredProduct(KeyEvent keyEvent) {
         String searchString = OnSearchTextProduct.getText();
         boolean isNumericString = isNumeric(searchString);
@@ -259,42 +277,37 @@ public class MainController implements Initializable {
         productsTableView.setItems(matchedProducts);
     }
 
-    public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
-        System.out.println("Pressed Product Add Button");
+    public void OnProductModifyButton(ActionEvent actionEvent) throws IOException {
+        System.out.println("Pressed Product Modify Button");
 
-        Parent root = FXMLLoader.load(getClass().getResource("../view/AddModifyProductScene.fxml"));
-        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, 1500, 875);
-        stage.setTitle("Add Product");
-        stage.setScene(scene);
-        stage.show();
-    }
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("../view/AddModifyProductScene.fxml"));
+            Parent root = loader.load();
 
-    public void OnProductModifyButton(ActionEvent actionEvent) {
+            Scene scene = new Scene(root, 1500, 875);
+
+            AddModifyProductController controller = loader.getController();
+            controller.AddModifyProductLabel.setText("Modify Product");
+            controller.InitializePickPartsTable();
+            controller.InitProduct((Product) productsTableView.getSelectionModel().getSelectedItem());
+
+            Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+            stage.setTitle("Modify Part");
+            stage.setScene(scene);
+
+            stage.show();
+
+//        } catch (Exception e) {
+//            Alert alert = new Alert(Alert.AlertType.ERROR);
+//            alert.setTitle("Error");
+//            alert.setHeaderText("Product not found");
+//            alert.setContentText("Please select a product in order to modify a product");
+//
+//            alert.showAndWait();
+//        }
     }
 
     public void OnProductDeleteButton(ActionEvent actionEvent) {
     }
 
-
-
-    /** Products (Right side) *************************************************************************/
-
-//    public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
-//        FXMLLoader loader = new FXMLLoader();
-//        loader.setLocation(getClass().getResource("../view/AddModifyProductScene.fxml"));
-//        Parent root = loader.load();
-//
-//        Scene scene = new Scene(root, 1500, 875);
-//
-//        AddModifyProductController controller = loader.getController();
-//        controller.AddModifyProductLabel.setText("Add Product");
-//        controller.InitPickPartData(Inventory.getAllParts());
-//
-//        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
-//        stage.setTitle("Add Product");
-//        stage.setScene(scene);
-//
-//        stage.show();
-//    }
 }

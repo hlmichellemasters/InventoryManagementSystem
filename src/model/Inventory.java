@@ -20,13 +20,26 @@ public class Inventory {
 
     public static void addTestData(){
 
-        allParts.add(new InHouse(1, "L. acidophilus", 500.00, 20, 5, 100, 00));
-        allParts.add(new InHouse(2, "B. bifidum", 300.00, 30, 10, 200, 001));
-        allParts.add(new Outsourced(3, "Corn Maltodextrin", 50.00, 15, 5, 50, "Chemicals Inc"));
-        allParts.add(new Outsourced(4, "Inulin", 30.00, 10, 4, 40, "Fiber LLC"));
+        Part acidophilus = new InHouse(1, "L. acidophilus", 500.00, 20, 5, 100, 00);
+        Part bifidum = new InHouse(2, "B. bifidum", 300.00, 30, 10, 200, 001);
+        Part cornMalto = new Outsourced(3, "Corn Maltodextrin", 50.00, 15, 5, 50, "Chemicals Inc");
+        Part inulin = new Outsourced(4, "Inulin", 30.00, 10, 4, 40, "Fiber LLC");
 
-        allProducts.add(new Product(1, "Test Blend", 1000.00, 5, 0, 10));
-        allProducts.add(new Product(2, "New Blend", 800.00, 1, 0, 1));
+        allParts.add(acidophilus);
+        allParts.add(bifidum);
+        allParts.add(cornMalto);
+        allParts.add(inulin);
+
+        Product testBlend = new Product(1, "Test Blend", 1000.00, 5, 0, 10);
+        Product newBlend = new Product(2, "New Blend", 800.00, 1, 0, 1);
+
+        testBlend.addAssociatedPart(bifidum);
+        testBlend.addAssociatedPart(inulin);
+        newBlend.addAssociatedPart(acidophilus);
+        newBlend.addAssociatedPart(cornMalto);
+
+        allProducts.add(testBlend);
+        allProducts.add(newBlend);
     }
 
     public static void addPart(Part part){

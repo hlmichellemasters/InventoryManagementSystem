@@ -2,6 +2,8 @@ package model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableListBase;
+import javafx.fxml.FXML;
 
 /**
  *
@@ -10,7 +12,7 @@ import javafx.collections.ObservableList;
 
 public class Product {
 
-    private ObservableList<Part> associatedParts;
+    private static ObservableList<Part> associatedParts;
     private int id;
     private String name;
     private double price;
@@ -26,6 +28,7 @@ public class Product {
         this.stock = stock;
         this.min = min;
         this.max = max;
+        associatedParts = FXCollections.observableArrayList();
     }
 
     /**
@@ -112,19 +115,28 @@ public class Product {
         this.max = max;
     }
 
-    private ObservableList<Part> getAllAssociatedParts() {
+    public ObservableList<Part> getAllAssociatedParts() {
 
-        return associatedParts;
+        if (!associatedParts.contains(null)) {
+            return associatedParts;
+        }
+
+        else {
+            return null;
+        }
     }
 
-    private void addAssociatedPart(Part part) {
+    public void addAssociatedPart(Part part) {
 
+        System.out.println("received part: " + part);
         associatedParts.add(part);
+        System.out.println("added part: " + part + "to product " + getName());
     }
 
-    private boolean deleteAssociatedPart(Part selectedAssociatedPart) {
+    public boolean deleteAssociatedPart(Part selectedAssociatedPart) {
         try {
             associatedParts.remove(selectedAssociatedPart);
+            System.out.println("Removed part " + selectedAssociatedPart);
         } catch (Exception e){
             // add some kind of error statement, is this error even possible?
             return false;
