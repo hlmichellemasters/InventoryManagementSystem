@@ -1,9 +1,11 @@
 package model;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
 import javafx.fxml.FXML;
+
+import java.util.List;
 
 /**
  *
@@ -12,7 +14,7 @@ import javafx.fxml.FXML;
 
 public class Product {
 
-    private static ObservableList<Part> associatedParts;
+    private ObservableList<Part> associatedParts;
     private int id;
     private String name;
     private double price;
@@ -28,7 +30,7 @@ public class Product {
         this.stock = stock;
         this.min = min;
         this.max = max;
-        associatedParts = FXCollections.observableArrayList();
+        this.associatedParts = FXCollections.observableArrayList();
     }
 
     /**

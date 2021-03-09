@@ -38,6 +38,8 @@ public class Inventory {
         newBlend.addAssociatedPart(acidophilus);
         newBlend.addAssociatedPart(cornMalto);
 
+        System.out.println("Test Blend contains parts: " + testBlend.getAllAssociatedParts());
+
         allProducts.add(testBlend);
         allProducts.add(newBlend);
     }

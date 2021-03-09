@@ -30,10 +30,10 @@ import java.util.ResourceBundle;
 public class MainController implements Initializable {
 
     @FXML
-    public TableView partsTableView;
+    public TableView<Part> partsTableView;
 
     @FXML
-    public TableView productsTableView;
+    public TableView<Product> productsTableView;
 
     @FXML
     public Button OnPartAddButton;
@@ -54,37 +54,36 @@ public class MainController implements Initializable {
     private TextField OnSearchTextProduct;
 
     @FXML
-    private TableColumn partIDColumn;
+    private TableColumn<Part, String> partIDColumn;
 
     @FXML
-    private TableColumn partNameColumn;
+    private TableColumn<Part, String> partNameColumn;
 
     @FXML
-    private TableColumn partInventoryLevelColumn;
+    private TableColumn<Part, String> partInventoryLevelColumn;
 
     @FXML
-    private TableColumn partPriceCostPerUnitColumn;
+    private TableColumn<Part, String> partPriceCostPerUnitColumn;
 
     @FXML
-    private TableColumn productIDColumn;
+    private TableColumn<Part, String> productIDColumn;
 
     @FXML
-    private TableColumn productNameColumn;
+    private TableColumn<Part, String> productNameColumn;
 
     @FXML
-    private TableColumn productInventoryLevelColumn;
+    private TableColumn<Part, String> productInventoryLevelColumn;
 
     @FXML
-    private TableColumn productPriceCostPerUnitColumn;
+    private TableColumn<Part, String> productPriceCostPerUnitColumn;
 
-    @FXML
-    private ObservableList<Part> allParts = FXCollections.observableArrayList();
-
-    @FXML
-    private ObservableList<Product> allProducts = FXCollections.observableArrayList();
-
-
-
+    /**
+     * Called to initialize a controller after its root element has been completely processed,
+     *                  and sets up the tables for parts and products.
+     * @param location The location used to resolve relative paths for the root object,
+     *                 or null if the location is not known.
+     * @param resources The resources used to localize the root object, or null if the root object was not localized.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -103,42 +102,51 @@ public class MainController implements Initializable {
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         productInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
         productPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-
-        System.out.println("Initialized!");
     }
 
+    /**
+     * Exits/Closes the application.
+     * @param actionEvent triggered by pressing the exit button.
+     */
+
     public void OnExitProgramButton(ActionEvent actionEvent) {
+
         Stage stage = (Stage) OnExitProgramButton.getScene().getWindow();
         stage.close();
     }
 
 
-
 /** Parts (Left side) *************************************************************************/
 
     /**
-     * This method searches for a substring of a part name to locate any matching parts.
+     * Searches for a substring of a part name or ID to locate any matching parts.
+     * @param keyEvent triggered from key entered in search text field
      */
+
     public void OnSearchStringEntered(KeyEvent keyEvent) {
 
         String searchString = OnSearchText.getText();
         boolean isNumericString = isNumeric(searchString);
         ObservableList<Part> matchedParts = FXCollections.observableArrayList();
 
-            if (isNumericString) {
+        if (isNumericString) {
 
-                matchedParts.add(Inventory.lookupPart(Integer.parseInt(searchString)));
-            }
+            matchedParts.add(Inventory.lookupPart(Integer.parseInt(searchString)));
+        }
 
-            else {
+        else {
 
-                matchedParts = Inventory.lookupPart(OnSearchText.getText());
-            }
+            matchedParts = Inventory.lookupPart(OnSearchText.getText());
+        }
 
         partsTableView.setItems(matchedParts);
     }
 
-
+    /**
+     * Checks whether the string provided is made up of at least one digit.
+     * @param numOrString receives a String to check whether it is numeric.
+     * @return true if the String is numeric, otherwise false.
+     */
 
     public static boolean isNumeric(String numOrString) {
 
@@ -150,9 +158,7 @@ public class MainController implements Initializable {
         try {
 
             Integer.parseInt(numOrString);
-        }
-
-        catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
 
             return false;
         }
@@ -162,8 +168,9 @@ public class MainController implements Initializable {
 
     /**
      * This method opens the scene for adding a new part.
-     * @param actionEvent
-     * @throws IOException
+     *
+     * @param actionEvent triggered from pressing the part's add button.
+     * @throws IOException triggered if the scene cannot be loaded.
      */
     public void OnPartAddButton(ActionEvent actionEvent) throws IOException {
         System.out.println("Pressed Part Add Button");
@@ -177,11 +184,12 @@ public class MainController implements Initializable {
     }
 
     /**
-     * When this method is called it passes the selected part to the modify scene.
-     * @param actionEvent
-     * @throws IOException
+     * Passes a selected part to the modify part screen for modification.
+     *
+     * @param actionEvent triggered by pressing the part's modify button
+     * @throws Exception caught when a part is not selected
      */
-    public void OnPartModifyButton(ActionEvent actionEvent) throws IOException {
+    public void OnPartModifyButton(ActionEvent actionEvent) {
         System.out.println("Pressed Part Modify Button");
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -192,7 +200,7 @@ public class MainController implements Initializable {
 
             AddModifyPartsController controller = loader.getController();
             controller.AddModifyPartsLabel.setText("Modify Part");
-            controller.initData((Part) partsTableView.getSelectionModel().getSelectedItem());
+            controller.initData(partsTableView.getSelectionModel().getSelectedItem());
 
             Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
             stage.setTitle("Modify Part");
@@ -201,45 +209,40 @@ public class MainController implements Initializable {
             stage.show();
 
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Product not found");
-            alert.setContentText("Please select a product in order to modify a product");
-
-            alert.showAndWait();
+            ErrorException("Part not selected", "Please select a part in order to modify a part.");
         }
     }
 
     /**
-     * This method will delete a selected part after getting confirmation from a dialog box.
-     * @param actionEvent
+     * This method will delete a selected part from inventory upon confirmation.
+     * @param actionEvent triggered from the part's delete button.
+     * @exception Exception triggered when a part is not selected.
      */
     public void OnPartDeleteButton(ActionEvent actionEvent) {
         try {
-            Part selectedPart = (Part) partsTableView.getSelectionModel().getSelectedItem();
+            Part selectedPart = partsTableView.getSelectionModel().getSelectedItem();
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation");
-            alert.setHeaderText("Delete item?");
-            alert.setContentText("Confirm you want to delete " + selectedPart.getName());
+            if (DeleteConfirmation("Confirm you want to delete " +
+                    selectedPart.getName())) {
 
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if (result.get() == ButtonType.OK) {
                 Inventory.deletePart(selectedPart);
             }
 
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Part not found");
-            alert.setContentText("Please select a part in order to delete a part");
 
-            alert.showAndWait();
-            }
+            ErrorException("Part not found", "Please select a part to delete a part.");
+        }
     }
 
-    /** Products (Right side) *************************************************************************/
+    /**
+     * Products (Right side)
+     *************************************************************************/
+
+    /**
+     * Changes the scene for the addition of a new product.
+     * @param actionEvent triggered from pressing the product's add button.
+     * @throws IOException triggered if the scene cannot be loaded.
+     */
 
     public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
         FXMLLoader loader = new FXMLLoader();
@@ -259,6 +262,11 @@ public class MainController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Searches for a substring of a product name or ID to locate any matching parts.
+     * @param keyEvent triggered from key entered in search text field
+     */
+
     public void OnSearchStringEnteredProduct(KeyEvent keyEvent) {
         String searchString = OnSearchTextProduct.getText();
         boolean isNumericString = isNumeric(searchString);
@@ -267,9 +275,7 @@ public class MainController implements Initializable {
         if (isNumericString) {
 
             matchedProducts.add(Inventory.lookupProduct(Integer.parseInt(searchString)));
-        }
-
-        else {
+        } else {
 
             matchedProducts = Inventory.lookupProduct(OnSearchTextProduct.getText());
         }
@@ -277,9 +283,9 @@ public class MainController implements Initializable {
         productsTableView.setItems(matchedProducts);
     }
 
-    public void OnProductModifyButton(ActionEvent actionEvent) throws IOException {
+    public void OnProductModifyButton(ActionEvent actionEvent) {
         System.out.println("Pressed Product Modify Button");
-
+        try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("../view/AddModifyProductScene.fxml"));
             Parent root = loader.load();
@@ -297,17 +303,52 @@ public class MainController implements Initializable {
 
             stage.show();
 
-//        } catch (Exception e) {
-//            Alert alert = new Alert(Alert.AlertType.ERROR);
-//            alert.setTitle("Error");
-//            alert.setHeaderText("Product not found");
-//            alert.setContentText("Please select a product in order to modify a product");
-//
-//            alert.showAndWait();
-//        }
+        } catch (Exception e) {
+
+            ErrorException("Product not found", "Please select a product to modify a product.");
+        }
     }
 
+
+
     public void OnProductDeleteButton(ActionEvent actionEvent) {
+        try {
+
+            Product selectedProduct = (Product) productsTableView.getSelectionModel().getSelectedItem();
+
+            if (DeleteConfirmation("Confirm you want to delete" +
+                    selectedProduct.getName())) {
+
+                Inventory.deleteProduct(selectedProduct);
+            }
+
+        } catch (Exception e) {
+
+            ErrorException("Part not found",
+                    "Please select a product in order to delete a product.");
+        }
+    }
+
+    public boolean DeleteConfirmation(String contentText) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Delete item?");
+        alert.setContentText(contentText);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            return true;
+        }
+        return false;
+    }
+
+    public void ErrorException (String headerText, String contentText) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        alert.showAndWait();
     }
 
 }

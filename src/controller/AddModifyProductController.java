@@ -14,9 +14,7 @@ import javafx.stage.Stage;
 import model.*;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class AddModifyProductController {
 
@@ -45,64 +43,38 @@ public class AddModifyProductController {
         public TextField OnSearchTextPartAdd;
 
         @FXML
-        private Button OnPartRemoveFromProductButton;
-
-        @FXML
-        private Button OnPartAddToProductButton;
-
-        @FXML
-        private Button OnProductSaveButton;
-
-        @FXML
-        private Button OnProductCancelButton;
-
-        @FXML
         private TableView<Part> pickPartsTableView;
 
         @FXML
         private TableView<Part> currentPartsTableView;
 
         @FXML
-        private TableColumn partIDColumn;
+        private TableColumn<Part, String> addPartIDColumn;
 
         @FXML
-        private TableColumn partNameColumn;
+        private TableColumn<Part, String> addPartNameColumn;
 
         @FXML
-        private TableColumn partInventoryLevelColumn;
+        private TableColumn<Part, String> addPartInventoryLevelColumn;
 
         @FXML
-        private TableColumn partPriceCostPerUnitColumn;
+        private TableColumn<Part, String> addPartPriceCostPerUnitColumn;
 
         @FXML
-        private TableView addPartsTableView;
+        private TableColumn<Part, String> currentPartIDColumn;
 
         @FXML
-        private TableColumn addPartIDColumn;
+        private TableColumn<Part, String> currentPartNameColumn;
 
         @FXML
-        private TableColumn addPartNameColumn;
+        private TableColumn<Part, String> currentPartInventoryLevelColumn;
 
         @FXML
-        private TableColumn addPartInventoryLevelColumn;
+        private TableColumn<Part, String> currentPartPriceCostPerUnitColumn;
 
-        @FXML
-        private TableColumn addPartPriceCostPerUnitColumn;
+        private final ObservableList<Part> pickAllParts = FXCollections.observableArrayList();
+        private  ObservableList<Part> modifyAssociatedParts = FXCollections.observableArrayList();
 
-        @FXML
-        private TableColumn currentPartIDColumn;
-
-        @FXML
-        private TableColumn currentPartNameColumn;
-
-        @FXML
-        private TableColumn currentPartInventoryLevelColumn;
-
-        @FXML
-        private TableColumn currentPartPriceCostPerUnitColumn;
-
-        private ObservableList<Part> pickAllParts = FXCollections.observableArrayList();
-        private ObservableList<Part> associatedParts = FXCollections.observableArrayList();
         private int productIdCounter = 2;
         Product selectedProduct;
 
@@ -127,14 +99,28 @@ public class AddModifyProductController {
                 TextMaxProduct.setText(String.valueOf(selectedProduct.getMax()));
                 TextPriceCostProduct.setText(String.valueOf(selectedProduct.getPrice()));
 
+//                if (!product.getAllAssociatedParts().contains(null)) {
+//                        modifyAssociatedParts.addAll(product.getAllAssociatedParts());
+//                        System.out.println("Product " + product + " has parts " + modifyAssociatedParts);
+//                        currentPartsTableView.setItems(modifyAssociatedParts);
+//
+//                }
+//
+//                else {
+//
+//                }
                 if (!product.getAllAssociatedParts().contains(null)) {
-                        associatedParts.addAll(product.getAllAssociatedParts());
-                        currentPartsTableView.setItems(associatedParts);
-                        currentPartIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-                        currentPartNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-                        currentPartInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
-                        currentPartPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+                        modifyAssociatedParts.addAll(product.getAllAssociatedParts());
+
                 }
+
+                System.out.println("Product " + product + " has parts " + modifyAssociatedParts);
+                currentPartsTableView.setItems(modifyAssociatedParts);
+
+                currentPartIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+                currentPartNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+                currentPartInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+                currentPartPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         }
 
         public void OnSearchStringEnteredAddPart(KeyEvent keyEvent) {
@@ -159,12 +145,12 @@ public class AddModifyProductController {
         public void OnPartAddToProductButton(ActionEvent actionEvent) {
 
                 System.out.println("Adding Part to Product");
-                Part selectedPart = ((Part) pickPartsTableView.getSelectionModel().getSelectedItem());
+                Part selectedPart = pickPartsTableView.getSelectionModel().getSelectedItem();
                 System.out.println("Got selected Part");
-                associatedParts.add(selectedPart);
+                modifyAssociatedParts.add(selectedPart);
                 System.out.println("Added selected Part to list.  Selected part is " + selectedPart
-                + "and currentParts is " + associatedParts);
-                currentPartsTableView.setItems(associatedParts);
+                + "and currentParts is " + modifyAssociatedParts);
+                currentPartsTableView.setItems(modifyAssociatedParts);
                 currentPartIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
                 currentPartNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
                 currentPartInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
@@ -173,27 +159,26 @@ public class AddModifyProductController {
         }
 
         public void OnPartRemoveFromProductButton(ActionEvent actionEvent) {
-                selectedProduct.deleteAssociatedPart((Part)currentPartsTableView.
-                        getSelectionModel().getSelectedItem());
-                currentPartsTableView.setItems(selectedProduct.getAllAssociatedParts());
 
+                modifyAssociatedParts.remove(currentPartsTableView.
+                        getSelectionModel().getSelectedItem());
         }
 
         public void OnProductSaveButton(ActionEvent actionEvent) throws IOException {
-                System.out.println("This will commit the data to the observable list(view)");
 
                 // Check if any of the fields are empty and throw an error dialog if so.
                 if (TextProductName.getText().isBlank() || TextPriceCostProduct.getText().isBlank() ||
                         TextInventoryProduct.getText().isBlank() || TextMinProduct.getText().isBlank() ||
-                        TextMaxProduct.getText().isBlank()) {
+                        TextMaxProduct.getText().isBlank() || modifyAssociatedParts.isEmpty()){
 
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
                         alert.setHeaderText("Empty Fields Found");
-                        alert.setContentText("Please enter appropriate information into every field");
-
+                        alert.setContentText("Please enter appropriate information into every field " +
+                                "including at least one part");
                         alert.showAndWait();
                 }
+                // check if the digit requiring fields are parsable, and show error if not.
                 try {
                         Double.parseDouble(TextPriceCostProduct.getText());
                         Integer.parseInt(TextInventoryProduct.getText());
@@ -205,12 +190,15 @@ public class AddModifyProductController {
                                 "Inventory/Stock, Min, and Max fields.");
                 }
 
+                // set the new fields for the product
                 String productName = TextProductName.getText();
                 double priceCostProduct = Double.parseDouble(TextPriceCostProduct.getText());
                 int inventoryProduct = Integer.parseInt(TextInventoryProduct.getText());
                 int minProduct = Integer.parseInt(TextMinProduct.getText());
                 int maxProduct = Integer.parseInt(TextMaxProduct.getText());
 
+                // check to make sure that the min is less than inventory and max,
+                // and that max is more than inventory.
                 if (minProduct >= maxProduct || inventoryProduct < minProduct ||
                         inventoryProduct > maxProduct) {
 
@@ -232,30 +220,34 @@ public class AddModifyProductController {
                         newProduct = new Product(productIdCounter, productName, priceCostProduct, inventoryProduct,
                                 minProduct, maxProduct);
 
-                        for (Part part : associatedParts) {
+                        for (Part part: modifyAssociatedParts) {
                                 newProduct.addAssociatedPart(part);
                         }
 
                         Inventory.addProduct(newProduct);
-
                 }
+
                 // else if the product is not new, set the properties of the product
+                // then delete the old associated parts and add the new parts
                 else {
+
                         selectedProduct.setName(productName);
                         selectedProduct.setStock(inventoryProduct);
                         selectedProduct.setPrice(priceCostProduct);
                         selectedProduct.setMin(minProduct);
                         selectedProduct.setMax(maxProduct);
 
+                        ObservableList<Part> associatedParts = selectedProduct.getAllAssociatedParts();
 
-                        for (Part part : associatedParts) {
+                        for (Part part: modifyAssociatedParts) {
                                 selectedProduct.deleteAssociatedPart(part);
                         }
-                        for (Part part : associatedParts) {
+
+                        for (Part part: modifyAssociatedParts) {
                                 selectedProduct.addAssociatedPart(part);
                         }
                 }
-
+                modifyAssociatedParts.clear();
 
                 loadMain(actionEvent);
         }
@@ -269,10 +261,14 @@ public class AddModifyProductController {
             alert.setContentText("Confirm you don't want to save your addition or modification");
 
             Optional<ButtonType> result = alert.showAndWait();
+
             if (result.isPresent() && result.get() == ButtonType.OK) {
+                modifyAssociatedParts.clear();
                 loadMain(actionEvent);
             }
         }
+
+
 
         public void loadMain(ActionEvent actionEvent) throws IOException {
                 Parent root = FXMLLoader.load(getClass().getResource("../view/Main.fxml"));
