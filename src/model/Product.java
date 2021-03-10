@@ -1,17 +1,12 @@
 package model;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-
-import java.util.List;
 
 /**
- *
+ * an object that lives in the inventory that is made up of parts.
  * @author Heaven-Leigh (Michelle) Masters
  */
-
 public class Product {
 
     private ObservableList<Part> associatedParts;
@@ -22,6 +17,15 @@ public class Product {
     private int min;
     private int max;
 
+    /**
+     * Main constructor for making a product object.
+     * @param id is the unique ID of the product.
+     * @param name is the displayed name of the product.
+     * @param price is the cost of the product.
+     * @param stock is the amount in inventory of the product.
+     * @param min is the minimum amount for inventory of the product.
+     * @param max is the maximum amount for inventory of the product.
+     */
     public Product(int id, String name, double price, int stock, int min, int max) {
 
         this.id = id;
@@ -30,7 +34,7 @@ public class Product {
         this.stock = stock;
         this.min = min;
         this.max = max;
-        this.associatedParts = FXCollections.observableArrayList();
+        associatedParts = FXCollections.observableArrayList();
     }
 
     /**
@@ -117,6 +121,11 @@ public class Product {
         this.max = max;
     }
 
+    /**
+     * gets all of the associated parts of a product and returns them, returns null if none.
+     * @return returns any associated parts of the product.
+     */
+
     public ObservableList<Part> getAllAssociatedParts() {
 
         if (!associatedParts.contains(null)) {
@@ -128,6 +137,11 @@ public class Product {
         }
     }
 
+    /**
+     * adds a part to the associated parts list of a product.
+     * @param part receives a part in order to add to the list of a product's associated parts.
+     */
+
     public void addAssociatedPart(Part part) {
 
         System.out.println("received part: " + part);
@@ -135,15 +149,30 @@ public class Product {
         System.out.println("added part: " + part + "to product " + getName());
     }
 
+    /**
+     * deletes a part from a product's associated parts list.
+     * @param selectedAssociatedPart receives a part in order to delete the same part from
+     *                               the associated parts list of the product.
+     * @return returns true if the part was deleted, otherwise returns false.
+     */
     public boolean deleteAssociatedPart(Part selectedAssociatedPart) {
         try {
             associatedParts.remove(selectedAssociatedPart);
             System.out.println("Removed part " + selectedAssociatedPart);
-        } catch (Exception e){
-            // add some kind of error statement, is this error even possible?
+        } catch (Exception e) {
+
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * clears all parts from the selected parts associated parts list.
+     * This allows a fresh list to be saved from the modify parts list.
+     */
+    public void clearParts() {
+
+        associatedParts.clear();
     }
 }

@@ -1,14 +1,8 @@
 package model;
 
-/**
- * Supplied class Part.java
+/** is the supplied abstract class Part.java
+ *  @author Heaven-Leigh (Michelle) Masters
  */
-
-/**
- *
- * @author Heaven-Leigh (Michelle) Masters
- */
-
 public abstract class Part {
     private int id;
     private String name;
@@ -16,6 +10,16 @@ public abstract class Part {
     private int stock;
     private int min;
     private int max;
+
+    /**
+     * Main constructor for making a part object.
+     * @param id is the unique ID of the part.
+     * @param name is the displayed name of the part.
+     * @param price is the cost of the part.
+     * @param stock is the amount in inventory of the part.
+     * @param min is the minimum amount for inventory of the part.
+     * @param max is the maximum amount for inventory of the part.
+     */
     public Part(int id, String name, double price, int stock, int min, int max) {
 
         this.id = id;

@@ -14,8 +14,13 @@ import javafx.stage.Stage;
 import model.*;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Optional;
 
+/**
+ * this class provides the control for the Add Product and Modify Product Screens.
+ * @author Heaven-Leigh (Michelle) Masters
+ */
 public class AddModifyProductController {
 
         @FXML
@@ -78,6 +83,9 @@ public class AddModifyProductController {
         private int productIdCounter = 2;
         Product selectedProduct;
 
+        /**
+         * initializes the table for picking parts to add to a product.
+         */
         public void InitializePickPartsTable() {
 
                 System.out.println("Pick Parts Table Initialized");
@@ -90,7 +98,12 @@ public class AddModifyProductController {
                 addPartPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         }
 
+        /**
+         * initializes the part table that displays the parts that are in the selected product.
+         * @param product is the selected product that the table will display the parts for
+         */
         public void InitProduct(Product product) {
+
                 selectedProduct = product;
                 TextProductID.setText(String.valueOf(selectedProduct.getId()));
                 TextProductName.setText(selectedProduct.getName());
@@ -99,22 +112,11 @@ public class AddModifyProductController {
                 TextMaxProduct.setText(String.valueOf(selectedProduct.getMax()));
                 TextPriceCostProduct.setText(String.valueOf(selectedProduct.getPrice()));
 
-//                if (!product.getAllAssociatedParts().contains(null)) {
-//                        modifyAssociatedParts.addAll(product.getAllAssociatedParts());
-//                        System.out.println("Product " + product + " has parts " + modifyAssociatedParts);
-//                        currentPartsTableView.setItems(modifyAssociatedParts);
-//
-//                }
-//
-//                else {
-//
-//                }
                 if (!product.getAllAssociatedParts().contains(null)) {
                         modifyAssociatedParts.addAll(product.getAllAssociatedParts());
 
                 }
 
-                System.out.println("Product " + product + " has parts " + modifyAssociatedParts);
                 currentPartsTableView.setItems(modifyAssociatedParts);
 
                 currentPartIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -123,59 +125,74 @@ public class AddModifyProductController {
                 currentPartPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         }
 
+        /**
+         * searches the search string entered to look for any matches to part ID or part name.
+         * Uses isNumericString method in order to determine if the search is numeric or alphabetical.
+         * Fills a matchedParts list with parts that match the search, if none all parts are shown.
+         * @param keyEvent triggered by a key press within the part search text field
+         */
         public void OnSearchStringEnteredAddPart(KeyEvent keyEvent) {
 
                 String searchString = OnSearchTextPartAdd.getText();
-                boolean isNumericString = MainController.isNumeric(searchString);
-                ObservableList<Part> matchedParts = FXCollections.observableArrayList();
-
-                if (isNumericString) {
-
-                        matchedParts.add(Inventory.lookupPart(Integer.parseInt(searchString)));
-                }
-
-                else {
-
-                        matchedParts = Inventory.lookupPart(OnSearchTextPartAdd.getText());
-                }
-
+                ObservableList<Part> matchedParts = MainController.FindMatchedParts(searchString);
                 pickPartsTableView.setItems(matchedParts);
         }
 
+        /**
+         * adds selected part to the product's associated parts list and table.
+         * @param actionEvent triggered from pressing the add button on the add/modify product screen.
+         */
         public void OnPartAddToProductButton(ActionEvent actionEvent) {
 
-                System.out.println("Adding Part to Product");
                 Part selectedPart = pickPartsTableView.getSelectionModel().getSelectedItem();
-                System.out.println("Got selected Part");
                 modifyAssociatedParts.add(selectedPart);
-                System.out.println("Added selected Part to list.  Selected part is " + selectedPart
-                + "and currentParts is " + modifyAssociatedParts);
+
                 currentPartsTableView.setItems(modifyAssociatedParts);
+
                 currentPartIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
                 currentPartNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
                 currentPartInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
                 currentPartPriceCostPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-                System.out.println("Set Table view to display list");
         }
 
+        /**
+         * removes the selected part from the product's associated parts list and table.
+         * Includes confirmation that the user would like to delete the part from the product.
+         * @param actionEvent triggered from pressing
+         */
         public void OnPartRemoveFromProductButton(ActionEvent actionEvent) {
 
-                modifyAssociatedParts.remove(currentPartsTableView.
-                        getSelectionModel().getSelectedItem());
+                Part part = currentPartsTableView.getSelectionModel().getSelectedItem();
+
+                System.out.println("selected item to delete is " + part.getName());
+
+                if (MainController.DeleteConfirmation("Confirm you want to delete " +
+                        part.getName())) {
+
+                        modifyAssociatedParts.remove(part);
+                        System.out.println("deleted " + part.getName() + " from modifyAssociatedParts list");
+                }
         }
 
+        /**
+         * saves the product information that has been added or modified.
+         * Includes data verification that fields are not blank and that numerical fields are numerical.
+         * Also verifies that the inventory set is less than max and more than min.
+         * It throws an error dialog and gives relevant instructions for any erroneous data.
+         * @param actionEvent triggered from pressing the save button on the add or modify product screens
+         * @throws IOException if the main screen cannot be reloaded
+         */
         public void OnProductSaveButton(ActionEvent actionEvent) throws IOException {
 
                 // Check if any of the fields are empty and throw an error dialog if so.
                 if (TextProductName.getText().isBlank() || TextPriceCostProduct.getText().isBlank() ||
                         TextInventoryProduct.getText().isBlank() || TextMinProduct.getText().isBlank() ||
-                        TextMaxProduct.getText().isBlank() || modifyAssociatedParts.isEmpty()){
+                        TextMaxProduct.getText().isBlank()){
 
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
                         alert.setHeaderText("Empty Fields Found");
-                        alert.setContentText("Please enter appropriate information into every field " +
-                                "including at least one part");
+                        alert.setContentText("No blank fields are allowed, please enter info for each");
                         alert.showAndWait();
                 }
                 // check if the digit requiring fields are parsable, and show error if not.
@@ -186,8 +203,8 @@ public class AddModifyProductController {
                         Integer.parseInt(TextMaxProduct.getText());
 
                 } catch (NumberFormatException nfe) {
-                        AddModifyPartsController.showErrorMessage(nfe, "Error in a numeric field", "Enter only numbers in the Price/Cost," +
-                                "Inventory/Stock, Min, and Max fields.");
+                        AddModifyPartsController.showErrorMessage(nfe, "Error in a numeric field",
+                                "Enter only numbers in the Price/Cost, Inventory/Stock, Min, and Max fields.");
                 }
 
                 // set the new fields for the product
@@ -202,13 +219,10 @@ public class AddModifyProductController {
                 if (minProduct >= maxProduct || inventoryProduct < minProduct ||
                         inventoryProduct > maxProduct) {
 
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("Inventory Error");
-                        alert.setContentText("Inventory / Stock must be less than max and more than min, " +
-                                "and max must be more than min.");
-                        alert.showAndWait();
+                        MainController.ErrorException("Inventory Error", "Inventory / Stock must " +
+                                "be less than max and more than min, and max must be more than min.");
                 }
+
                 // check if this is a new part, if so make new part and assign ID
                 if (TextProductID.getText().trim().isEmpty()) {
 
@@ -237,23 +251,26 @@ public class AddModifyProductController {
                         selectedProduct.setMin(minProduct);
                         selectedProduct.setMax(maxProduct);
 
-                        ObservableList<Part> associatedParts = selectedProduct.getAllAssociatedParts();
+                        selectedProduct.clearParts();
 
                         for (Part part: modifyAssociatedParts) {
-                                selectedProduct.deleteAssociatedPart(part);
-                        }
 
-                        for (Part part: modifyAssociatedParts) {
                                 selectedProduct.addAssociatedPart(part);
                         }
                 }
+
                 modifyAssociatedParts.clear();
 
                 loadMain(actionEvent);
         }
 
+        /**
+         * cancels the addition or modification of the product currently being editted.
+         * Includes a confirmation dialog to confirm they want to not save.
+         * @param actionEvent triggered from the cancel button on the add or modify product screens
+         * @throws IOException if the main screen cannot be reloaded.
+         */
         public void OnProductCancelButton(ActionEvent actionEvent) throws IOException {
-            System.out.println("Cancel button pressed");
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation");
@@ -268,8 +285,11 @@ public class AddModifyProductController {
             }
         }
 
-
-
+        /**
+         * loads the main screen back into the stage.
+         * @param actionEvent triggered from an action event from other buttons
+         * @throws IOException if the main screen cannot be reloaded
+         */
         public void loadMain(ActionEvent actionEvent) throws IOException {
                 Parent root = FXMLLoader.load(getClass().getResource("../view/Main.fxml"));
                 Stage mainStage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
