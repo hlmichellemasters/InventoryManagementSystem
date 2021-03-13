@@ -78,7 +78,7 @@ public class AddModifyProductController {
         private TableColumn<Part, String> currentPartPriceCostPerUnitColumn;
 
         private final ObservableList<Part> pickAllParts = FXCollections.observableArrayList();
-        private  ObservableList<Part> modifyAssociatedParts = FXCollections.observableArrayList();
+        private ObservableList<Part> modifyAssociatedParts = FXCollections.observableArrayList();
 
         Product selectedProduct;
 
@@ -101,6 +101,7 @@ public class AddModifyProductController {
 
         /**
          * initializes the part table that displays the parts that are in the selected product.
+         *
          * @param product is the selected product that the table will display the parts for
          */
         public void InitProduct(Product product) {
@@ -130,6 +131,7 @@ public class AddModifyProductController {
          * searches the search string entered to look for any matches to part ID or part name.
          * Uses isNumericString method in order to determine if the search is numeric or alphabetical.
          * Fills a matchedParts list with parts that match the search, if none all parts are shown.
+         *
          * @param keyEvent triggered by a key press within the part search text field
          */
         public void OnSearchStringEnteredAddPart(KeyEvent keyEvent) {
@@ -141,11 +143,12 @@ public class AddModifyProductController {
 
         /**
          * adds selected part to the product's associated parts list and table.
-         * One future enhancement that could be made to this application is actual inventory management.
-         * As this application is designed, it does not actually manage inventory, only specifications.
-         * Through adding the ability to either manually add and subtract inventory levels,
+         * One future enhancement that could be made to this application is easier inventory management.
+         * As this application is designed, you must use a separate modification screen to adjust stock level.
+         * Through adding the ability to either manually add and subtract inventory levels on the main screen,
          * or through automatically adjusting as products are made, it would add significant utility
          * as well as exemplifying the term "Inventory Management System".
+         *
          * @param actionEvent triggered from pressing the add button on the add/modify product screen.
          */
         public void OnPartAddToProductButton(ActionEvent actionEvent) {
@@ -164,6 +167,7 @@ public class AddModifyProductController {
         /**
          * removes the selected part from the product's associated parts list and table.
          * Includes confirmation that the user would like to delete the part from the product.
+         *
          * @param actionEvent triggered from pressing
          */
         public void OnPartRemoveFromProductButton(ActionEvent actionEvent) {
@@ -185,6 +189,7 @@ public class AddModifyProductController {
          * Includes data verification that fields are not blank and that numerical fields are numerical.
          * Also verifies that the inventory set is less than max and more than min.
          * It throws an error dialog and gives relevant instructions for any erroneous data.
+         *
          * @param actionEvent triggered from pressing the save button on the add or modify product screens
          * @throws IOException if the main screen cannot be reloaded
          */
@@ -193,7 +198,7 @@ public class AddModifyProductController {
                 // Check if any of the fields are empty and throw an error dialog if so.
                 if (TextProductName.getText().isBlank() || TextPriceCostProduct.getText().isBlank() ||
                         TextInventoryProduct.getText().isBlank() || TextMinProduct.getText().isBlank() ||
-                        TextMaxProduct.getText().isBlank()){
+                        TextMaxProduct.getText().isBlank()) {
 
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
@@ -239,7 +244,7 @@ public class AddModifyProductController {
                         newProduct = new Product(productID, productName, priceCostProduct, inventoryProduct,
                                 minProduct, maxProduct);
 
-                        for (Part part: modifyAssociatedParts) {
+                        for (Part part : modifyAssociatedParts) {
                                 newProduct.addAssociatedPart(part);
                         }
 
@@ -258,7 +263,7 @@ public class AddModifyProductController {
 
                         selectedProduct.clearParts();
 
-                        for (Part part: modifyAssociatedParts) {
+                        for (Part part : modifyAssociatedParts) {
 
                                 selectedProduct.addAssociatedPart(part);
                         }
@@ -270,27 +275,38 @@ public class AddModifyProductController {
         }
 
         /**
-         * cancels the addition or modification of the product currently being editted.
-         * Includes a confirmation dialog to confirm they want to not save.
+         * cancels the addition or modification of the product currently being edited upon confirmation.
          * @param actionEvent triggered from the cancel button on the add or modify product screens
          * @throws IOException if the main screen cannot be reloaded.
          */
         public void OnProductCancelButton(ActionEvent actionEvent) throws IOException {
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation");
-            alert.setHeaderText("Cancel your item?");
-            alert.setContentText("Confirm you don't want to save your addition or modification");
-
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                modifyAssociatedParts.clear();
-                if (newProductFlag) {
-                        MainController.productIdCounter--;
+                if (CancelAddOrModificationDialog()) {
+                        modifyAssociatedParts.clear();
+                        if (newProductFlag) {
+                                MainController.productIdCounter--;
+                        }
+                        loadMain(actionEvent);
                 }
-                loadMain(actionEvent);
-            }
+        }
+
+        /**
+         * creates the alert confirmation dialog box passing true if the user confirms they want to cancel.
+         * It passes false to indicate a return to editing if the user cancels the cancel button.
+         * @return
+         */
+        public static boolean CancelAddOrModificationDialog() {
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Confirmation");
+                alert.setHeaderText("Cancel your item?");
+                alert.setContentText("Confirm you don't want to save your addition or modification");
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                        return true;
+                }
+                return false;
         }
 
         /**

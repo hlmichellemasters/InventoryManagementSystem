@@ -288,15 +288,8 @@ public class AddModifyPartsController {
      */
     @FXML
     public void OnCancelButton(ActionEvent actionEvent) throws IOException {
-        System.out.println("Cancel button pressed");
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Cancel your item?");
-        alert.setContentText("Confirm you don't want to save your addition or modification");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (AddModifyProductController.CancelAddOrModificationDialog()) {
 
             if (newPartFlag) {
                 MainController.partIdCounter--;
@@ -304,7 +297,6 @@ public class AddModifyPartsController {
 
             loadMain(actionEvent);
         }
-
     }
 
     /**
