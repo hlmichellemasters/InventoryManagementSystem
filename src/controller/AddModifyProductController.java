@@ -80,8 +80,9 @@ public class AddModifyProductController {
         private final ObservableList<Part> pickAllParts = FXCollections.observableArrayList();
         private  ObservableList<Part> modifyAssociatedParts = FXCollections.observableArrayList();
 
-        private int productIdCounter = 2;
         Product selectedProduct;
+
+        public boolean newProductFlag;
 
         /**
          * initializes the table for picking parts to add to a product.
@@ -140,6 +141,11 @@ public class AddModifyProductController {
 
         /**
          * adds selected part to the product's associated parts list and table.
+         * One future enhancement that could be made to this application is actual inventory management.
+         * As this application is designed, it does not actually manage inventory, only specifications.
+         * Through adding the ability to either manually add and subtract inventory levels,
+         * or through automatically adjusting as products are made, it would add significant utility
+         * as well as exemplifying the term "Inventory Management System".
          * @param actionEvent triggered from pressing the add button on the add/modify product screen.
          */
         public void OnPartAddToProductButton(ActionEvent actionEvent) {
@@ -208,6 +214,7 @@ public class AddModifyProductController {
                 }
 
                 // set the new fields for the product
+                int productID = Integer.parseInt(TextProductID.getText());
                 String productName = TextProductName.getText();
                 double priceCostProduct = Double.parseDouble(TextPriceCostProduct.getText());
                 int inventoryProduct = Integer.parseInt(TextInventoryProduct.getText());
@@ -221,17 +228,15 @@ public class AddModifyProductController {
 
                         MainController.ErrorException("Inventory Error", "Inventory / Stock must " +
                                 "be less than max and more than min, and max must be more than min.");
+                        return;
                 }
 
                 // check if this is a new part, if so make new part and assign ID
-                if (TextProductID.getText().trim().isEmpty()) {
+                if (newProductFlag) {
 
-                        productIdCounter++;
                         Product newProduct;
 
-                        System.out.println("This is a new product");
-
-                        newProduct = new Product(productIdCounter, productName, priceCostProduct, inventoryProduct,
+                        newProduct = new Product(productID, productName, priceCostProduct, inventoryProduct,
                                 minProduct, maxProduct);
 
                         for (Part part: modifyAssociatedParts) {
@@ -281,6 +286,9 @@ public class AddModifyProductController {
 
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 modifyAssociatedParts.clear();
+                if (newProductFlag) {
+                        MainController.productIdCounter--;
+                }
                 loadMain(actionEvent);
             }
         }

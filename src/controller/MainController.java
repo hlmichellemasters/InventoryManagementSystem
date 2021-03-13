@@ -37,6 +37,12 @@ public class MainController implements Initializable {
     public TableView<Product> productsTableView;
 
     @FXML
+    public Label OnNoPartsFound;
+
+    @FXML
+    public Label OnNoProductsFound;
+
+    @FXML
     public Button OnPartAddButton;
 
     @FXML
@@ -77,6 +83,10 @@ public class MainController implements Initializable {
 
     @FXML
     private TableColumn<Part, String> productPriceCostPerUnitColumn;
+
+    public static int partIdCounter = 4;   // 4 parts are pre-loaded into Inventory
+
+    public static int productIdCounter = 2; // 2 parts are pre-loaded into Inventory
 
     /**
      * Called to initialize a controller after its root element has been completely processed,
@@ -126,32 +136,13 @@ public class MainController implements Initializable {
      */
     public void OnSearchStringEntered(KeyEvent keyEvent) {
 
+        OnNoPartsFound.setVisible(false);
         String searchString = OnSearchText.getText();
         ObservableList<Part> matchedParts = FindMatchedParts(searchString);
+        if (matchedParts.isEmpty()) {
+            OnNoPartsFound.setVisible(true);
+        }
         partsTableView.setItems(matchedParts);
-    }
-
-    /**
-     * Checks whether the string provided is made up of at least one digit.
-     * @param numOrString receives a String to check whether it is numeric.
-     * @return true if the String is numeric, otherwise false.
-     */
-    public static boolean isNumeric(String numOrString) {
-
-        if (numOrString == null) {
-
-            return false;
-        }
-
-        try {
-
-            Integer.parseInt(numOrString);
-        } catch (NumberFormatException nfe) {
-
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -161,11 +152,17 @@ public class MainController implements Initializable {
      * @throws IOException triggered if the scene cannot be loaded.
      */
     public void OnPartAddButton(ActionEvent actionEvent) throws IOException {
-        System.out.println("Pressed Part Add Button");
 
-        Parent root = FXMLLoader.load(getClass().getResource("../view/AddModifyPartScene.fxml"));
-        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("../view/AddModifyPartScene.fxml"));
+        Parent root = loader.load();
         Scene scene = new Scene(root, 1500, 875);
+
+        AddModifyPartsController controller = loader.getController();
+        controller.newPartFlag = true;
+        controller.TextPartID.setText(String.valueOf(++partIdCounter));
+
+        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
         stage.setTitle("Add Part");
         stage.setScene(scene);
         stage.show();
@@ -226,48 +223,47 @@ public class MainController implements Initializable {
      *************************************************************************/
 
     /**
-     * Changes the scene for the addition of a new product.
-     * @param actionEvent triggered from pressing the product's add button.
-     * @throws IOException if the scene cannot be loaded.
-     */
-    public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("../view/AddModifyProductScene.fxml"));
-        Parent root = loader.load();
-
-        Scene scene = new Scene(root, 1500, 875);
-
-        AddModifyProductController controller = loader.getController();
-        controller.AddModifyProductLabel.setText("Add Product");
-        controller.InitializePickPartsTable();
-
-        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
-        stage.setTitle("Add Product");
-        stage.setScene(scene);
-
-        stage.show();
-    }
-
-    /**
      * Searches for a substring of a product name or ID to locate any matching parts.
      * Uses same strategy as searching for a matchedParts,
      * but with lookupProduct instead of lookupPart from Inventory.
      * @param keyEvent triggered from key entered in search text field
      */
     public void OnSearchStringEnteredProduct(KeyEvent keyEvent) {
+
+        OnNoProductsFound.setVisible(false);
         String searchString = OnSearchTextProduct.getText();
-        boolean isNumericString = isNumeric(searchString);
-        ObservableList<Product> matchedProducts = FXCollections.observableArrayList();
+        ObservableList<Product> matchedProducts = FindMatchedProducts(searchString);
 
-        if (isNumericString) {
-
-            matchedProducts.add(Inventory.lookupProduct(Integer.parseInt(searchString)));
-        } else {
-
-            matchedProducts = Inventory.lookupProduct(searchString);
+        if (matchedProducts.isEmpty()) {
+            OnNoProductsFound.setVisible(true);
         }
 
         productsTableView.setItems(matchedProducts);
+    }
+
+    /**
+     * Changes the scene for the addition of a new product.
+     * @param actionEvent triggered from pressing the product's add button.
+     * @throws IOException if the scene cannot be loaded.
+     */
+    public void OnProductAddButton(ActionEvent actionEvent) throws IOException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("../view/AddModifyProductScene.fxml"));
+        Parent root = loader.load();
+
+        AddModifyProductController controller = loader.getController();
+        controller.AddModifyProductLabel.setText("Add Product");
+        controller.InitializePickPartsTable();
+        controller.newProductFlag = true;
+        controller.TextProductID.setText(String.valueOf(++productIdCounter));
+
+        Scene scene = new Scene(root, 1500, 875);
+        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        stage.setTitle("Add Product");
+        stage.setScene(scene);
+
+        stage.show();
     }
 
     /**
@@ -355,6 +351,54 @@ public class MainController implements Initializable {
         }
 
         return matchedParts;
+    }
+
+    /**
+     * finds matched products given a search string.
+     * First checks if it is numeric and if so matches the product ID number.
+     * Else checks for matches within the product name.
+     * @param searchString uses the search text that has been entered into the field
+     * @return any matched products, or empty list which causes all products to display
+     */
+    public static ObservableList<Product> FindMatchedProducts(String searchString) {
+
+        boolean isNumericString = isNumeric(searchString);
+        ObservableList<Product> matchedProducts = FXCollections.observableArrayList();
+
+        if (isNumericString) {
+
+            matchedProducts.add(Inventory.lookupProduct(Integer.parseInt(searchString)));
+        }
+
+        else {
+
+            matchedProducts = Inventory.lookupProduct(searchString);
+        }
+
+        return matchedProducts;
+    }
+
+    /**
+     * Checks whether the string provided is made up of at least one digit.
+     * @param numOrString receives a String to check whether it is numeric.
+     * @return true if the String is numeric, otherwise false.
+     */
+    public static boolean isNumeric(String numOrString) {
+
+        if (numOrString == null) {
+
+            return false;
+        }
+
+        try {
+
+            Integer.parseInt(numOrString);
+        } catch (NumberFormatException nfe) {
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

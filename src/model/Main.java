@@ -1,7 +1,3 @@
-/**
- * @author Heaven-Leigh (Michelle) Masters
- */
-
 package model;
 
 import javafx.application.Application;
@@ -12,6 +8,7 @@ import javafx.stage.Stage;
 
 /**
  * creates an Inventory Management System app that adds and modifies parts and products.
+ * @author Heaven-Leigh (Michelle) Masters
  */
 public class Main extends Application {
 

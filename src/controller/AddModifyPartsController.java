@@ -93,7 +93,7 @@ public class AddModifyPartsController {
 
     private Part selectedPart;
 
-    private int partIdCounter = 4;   // 4 parts are pre-loaded into Inventory
+    public boolean newPartFlag;
 
     /**
      * This method accepts a part from the list to modify and initializes the view of the modify scene.
@@ -208,6 +208,7 @@ public class AddModifyPartsController {
                     "Inventory/Stock, Min, and Max fields.");
         }
 
+        int partID = Integer.parseInt(TextPartID.getText());
         String partName = TextPartName.getText();
         double priceCostPart = Double.parseDouble(TextPriceCostPart.getText());
         int inventoryPart = Integer.parseInt(TextInventoryPart.getText());
@@ -216,21 +217,17 @@ public class AddModifyPartsController {
 
         if (minPart >= maxPart || inventoryPart < minPart || inventoryPart > maxPart) {
 
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Inventory Error");
-            alert.setContentText("Inventory / Stock must be less than max and more than min, " +
-                    "and max must be more than min.");
-            alert.showAndWait();
+            MainController.ErrorException("Inventory Error", "Inventory / Stock must " +
+                    "be less than max and more than min, and max must be more than min.");
+            return;
         }
-            // check if this is a new part, if so make new part and assign ID
-            if (TextPartID.getText().trim().isEmpty()) {
 
-                partIdCounter++;
+            // check if this is a new part, if so make new part and assign ID
+            if (newPartFlag) {
+
                 Part newPart;
 
                 if (RadioInHousePart.isSelected()) {
-                    System.out.println("This is a new InHouse Part");
 
                     try {
                         Integer.parseInt(TextMachineCompanyPart.getText());
@@ -243,12 +240,11 @@ public class AddModifyPartsController {
                         machineIDAlert.showAndWait();
                     }
 
-                    newPart = new InHouse(partIdCounter, partName, priceCostPart, inventoryPart, minPart,
+                    newPart = new InHouse(partID, partName, priceCostPart, inventoryPart, minPart,
                             maxPart, Integer.parseInt(TextMachineCompanyPart.getText()));
                 } else {
-                    System.out.println("This is a new Outsourced Part");
 
-                    newPart = new Outsourced(partIdCounter, partName, priceCostPart, inventoryPart, minPart,
+                    newPart = new Outsourced(partID, partName, priceCostPart, inventoryPart, minPart,
                             maxPart, TextMachineCompanyPart.getText());
                 }
 
@@ -301,6 +297,11 @@ public class AddModifyPartsController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+
+            if (newPartFlag) {
+                MainController.partIdCounter--;
+            }
+
             loadMain(actionEvent);
         }
 

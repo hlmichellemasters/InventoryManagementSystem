@@ -196,7 +196,7 @@ public class Inventory {
 
         try {
 
-            allParts.remove(selectedProduct);
+            allProducts.remove(selectedProduct);
             return true;
 
         } catch (Exception e) {
